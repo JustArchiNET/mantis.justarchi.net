@@ -28,7 +28,7 @@ $t_bug_table	= db_get_table( 'bug' );
 $t_user_table	= db_get_table( 'user' );
 $baseline=time(true)+ ($t_rem_days*$multiply*60*60);
 # $query="select $t_bug_table.id,summary,due_date,username,realname from $t_bug_table,$t_user_table where $t_bug_table.handler_id=$t_user_table.id and  status=$t_rem_status and due_date>1 and due_date<=$baseline" ;
-$query="select $t_bug_table.id,summary,due_date,username,realname from $t_bug_table,$t_user_table where $t_bug_table.handler_id=$t_user_table.id and status in ($t_rem_status) and due_date>1 and due_date<=$baseline" ;
+$query="select $t_bug_table.id,summary,due_date,username,realname from $t_bug_table,$t_user_table where $t_bug_table.handler_id=$t_user_table.id and status in (".implode(",", $t_rem_status).") and due_date>1 and due_date<=$baseline" ;
 
 $t_rem_include	= config_get('plugin_Reminder_reminder_include');
 $t_rem_projects	= "(";

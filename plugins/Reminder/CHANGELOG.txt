@@ -64,3 +64,4 @@ xxx		2013-03-07	samwilson	Moved to Github for easier collaboration.
 2.11	2018-08-31	Cas			Bugfixes								
 2.13	2018-08-31	Cas			Updated German language ( Thanks to FA-jka)
 								final bugfixes
+2.13a	2018-12-16	Archi		Fixed "final bugfixes" and made it actually work
