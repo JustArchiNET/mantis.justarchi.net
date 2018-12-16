@@ -41,8 +41,8 @@ if (ON != $t_rem_hours){
 // this needs to be made flexible
 // we will only produce overview for those projects that have a separate manager
 //
-$baseline	= time(true)+ ($t_rem_days*$multiply*60*60);
-$basenow	= time(true);
+$basenow	= time();
+$baseline	= $basenow + ($t_rem_days*$multiply*60*60);
 
 if ( ON == $t_rem_handler ) {
 	$query = "select id,handler_id,project_id,summary from $t_bug_table where status in (".implode(",", $t_rem_status).") and due_date<=$baseline and handler_id>0 ";

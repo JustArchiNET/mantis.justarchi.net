@@ -35,7 +35,7 @@ if (ON == $t_rem_hours){
 } else{
 	$multiply=1;
 }
-$baseline=time(true)+ ($t_rem_days*$multiply*60*60);
+$baseline=time() + ($t_rem_days*$multiply*60*60);
 # $query="select $t_bug_table.id,summary,due_date,username,realname from $t_bug_table,$t_user_table where $t_bug_table.handler_id=$t_user_table.id and status=$t_rem_status and due_date>1 and due_date<=$baseline" ;
 
 $query="select $t_bug_table.id,summary,due_date,username,realname from $t_bug_table,$t_user_table where $t_bug_table.handler_id=$t_user_table.id and status in (".implode(",", $t_rem_status).") and due_date>1 and due_date<=$baseline" ;
