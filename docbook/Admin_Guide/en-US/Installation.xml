@@ -127,7 +127,7 @@
 			<itemizedlist>
 				<listitem>
 					<para>Operating System</para>
-					<para>MantisBT runs on Windows, MacOS, OS/2, Linux, Solaris,
+					<para>MantisBT runs on Windows, macOS, Linux, Solaris,
 						the BSDs, and just about anything that supports the
 						required server software.
 					</para>
@@ -361,8 +361,9 @@
 			</para>
 
 			<itemizedlist>
-				<listitem><para>Firefox 45 and above</para></listitem>
-				<listitem><para>Internet Explorer 10 and above</para></listitem>
+				<listitem><para>Firefox</para></listitem>
+				<listitem><para>Internet Explorer 11</para></listitem>
+				<listitem><para>Edge</para></listitem>
 				<listitem><para>Chrome</para></listitem>
 				<listitem><para>Safari</para></listitem>
 				<listitem><para>Opera</para></listitem>
@@ -494,7 +495,7 @@ tar -xf <emphasis>filename.tar</emphasis>
 
 			<listitem>
 				<para>The script attempts to write a basic
-					<emphasis>config_inc.php</emphasis>
+					<filename>config_inc.php</filename>
 					file to define the database connection parameters.
 				</para>
 				<para>This operation may fail if the web server's user account
@@ -552,17 +553,68 @@ tar -xf <emphasis>filename.tar</emphasis>
 				<para>Copy the configuration files
 				</para>
 				<para>To preserve your system settings, you should copy the
-					files listed below to subdirectory config of the new directory.
-					You might have to copy as well other custom files such as logo, favicon, css, etc.
+					files listed below to subdirectory <filename>config</filename>
+					of the new installation.
 				</para>
-				<para>
-					<filename>config_inc.php</filename>,
-					the <emphasis>Custom Strings File</emphasis>
-					(<filename>custom_strings_inc.php</filename> by default,
-					see <xref linkend="admin.customize.strings"/>),
-					<filename>custom_constants_inc.php</filename> and
-					<filename>custom_functions_inc.php</filename>
+				<itemizedlist>
+					<listitem>
+						<para><filename>config_inc.php</filename>,</para>
+					</listitem>
+					<listitem>
+						<para><filename>custom_strings_inc.php</filename>,</para>
+					</listitem>
+					<listitem>
+						<para><filename>custom_constants_inc.php</filename> and</para>
+					</listitem>
+					<listitem>
+						<para><filename>custom_functions_inc.php</filename>.</para>
+					</listitem>
+				</itemizedlist>
+				<note>
+					<para>The above list is not exhaustive. You might also
+						have to copy other custom files specific to your
+						installation such as logo, favicon, css, etc.
+					</para>
+				</note>
+			</listitem>
+
+			<listitem>
+				<para>Copy third party plugins
 				</para>
+				<para>To maintain system functionality, you should copy any
+					additional plugins in the <filename>plugins</filename>
+					subdirectory.
+				</para>
+				<para>For example on Unix, you could use the following command;
+					it will copy all installed plugins (in local subdirectories
+					or symlinked), excluding bundled ones.
+				</para>
+				<programlisting>
+cd /path/to/mantisbt-OLD/plugins
+find -maxdepth 1 ! -path . -type d -o -type l |
+    grep -Pv "(Gravatar|MantisCoreFormatting|MantisGraph|XmlImportExport)" |
+    xargs -Idirs cp -r dirs /path/to/mantisbt-NEW/plugins
+</programlisting>
+				<warning>
+					<para>Make sure that you
+						<emphasis>do not overwrite any of the bundled plugins</emphasis>
+						as per the list below, with an older version.
+					</para>
+					<itemizedlist>
+						<listitem>
+							<para>Avatars via Gravatar (<filename>Gravatar</filename>)</para>
+						</listitem>
+						<listitem>
+							<para>MantisBT Formatting (<filename>MantisCoreFormatting</filename>)</para>
+						</listitem>
+						<listitem>
+							<para>Mantis Graphs (<filename>MantisGraph</filename>)</para>
+						</listitem>
+						<listitem>
+							<para>Import/Export issues (<filename>XmlImportExport</filename>)</para>
+						</listitem>
+					</itemizedlist>
+				</warning>
 			</listitem>
 
 			<listitem>
@@ -628,7 +680,7 @@ tar -xf <emphasis>filename.tar</emphasis>
 		<para>There are many settings that you can adjust to configure
 			and customize MantisBT.
 			Refer to <xref linkend="admin.config" />, as well as the
-			<emphasis>config_defaults_inc.php</emphasis> file
+			<filename>config_defaults_inc.php</filename> file
 			for in depth explanations of the available options.
 			Check out also
 			<xref linkend="admin.customize" />
@@ -640,22 +692,34 @@ tar -xf <emphasis>filename.tar</emphasis>
 			new configuration options.
 		</para>
 
-		<para>Open or create the file <emphasis>config_inc.php</emphasis> in
+		<para>Open or create the file <filename>config_inc.php</filename> in
 			subfolder config in an editor and add or modify any values as
 			required. These will override the default values.
 		</para>
 
 		<para>You may want to use the provided
-			<emphasis>config_inc.php.sample</emphasis> file
+			<filename>config_inc.php.sample</filename> file
 			as a starting point.
 		</para>
 
 		<warning>
 			<para>you should never edit the
-				<emphasis>config_defaults_inc.php</emphasis> file
+				<filename>config_defaults_inc.php</filename> file
 				directly, as it could cause issues with future upgrades.
 				Always store your custom configuration in your own
-				<emphasis>config_inc.php</emphasis> file.
+				<filename>config_inc.php</filename> file.
+			</para>
+		</warning>
+
+		<warning>
+			<para>The MantisBT configuration files
+				(<filename>config_inc.php</filename> as well as
+				<filename>custom_strings_inc.php</filename>,
+				<filename>custom_constants_inc.php</filename>,
+				<filename>custom_functions_inc.php</filename>, etc.)
+				should always be saved as
+				<emphasis>UTF-8 without BOM</emphasis>.
+				Failure to do so may lead to unexpected display issues.
 			</para>
 		</warning>
 

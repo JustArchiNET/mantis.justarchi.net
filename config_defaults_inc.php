@@ -1411,8 +1411,8 @@ $g_default_bug_view_status = VS_PUBLIC;
  *
  * @global string $g_default_bug_description
  */
- $g_default_bug_description = '';
- 
+$g_default_bug_description = '';
+
 /**
  * Default value for steps to reproduce field.
  * @global string $g_default_bug_steps_to_reproduce
@@ -1584,16 +1584,14 @@ $g_default_email_on_reopened = ON;
 $g_default_email_on_bugnote = ON;
 
 /**
- * @todo Unused
  * @global integer $g_default_email_on_status
  */
-$g_default_email_on_status = 0;
+$g_default_email_on_status = OFF;
 
 /**
- * @todo Unused
  * @global integer $g_default_email_on_priority
  */
-$g_default_email_on_priority = 0;
+$g_default_email_on_priority = OFF;
 
 /**
  * 'any'
@@ -1893,7 +1891,7 @@ $g_dropzone_enabled = ON;
 $g_attachments_file_permissions = 0400;
 
 /**
- * Maximum file size that can be uploaded
+ * Maximum file size (bytes) that can be uploaded.
  * Also check your PHP settings (default is usually 2MBs)
  * @global integer $g_max_file_size
  */
@@ -2029,18 +2027,18 @@ $g_reauthentication_expiry = TOKEN_EXPIRY_AUTHENTICATED;
 
 
 /**
- * Specifies the LDAP or Active Directory server to connect to, and must be
- * provided as an URI
- * - Protocol is optional, can be one of ldap or ldaps, defaults to ldap
+ * Specifies the LDAP or Active Directory server to connect to.
+ *
+ * This must be a full LDAP URI (ldap[s]://hostname:port)
+ * - Protocol can be either ldap or ldaps (for SSL encryption). If omitted,
+ *   then an unencrypted connection will be established on port 389.
  * - Port number is optional, and defaults to 389. If this doesn't work, try
  *   using one of the following standard port numbers: 636 (ldaps); for Active
  *   Directory Global Catalog forest-wide search, use 3268 (ldap) or 3269 (ldaps)
  *
  * Examples of valid URI:
- *
  *   ldap.example.com
- *   ldap.example.com:3268
- *   ldap://ldap.example.com/
+ *   ldap://ldap.example.com
  *   ldaps://ldap.example.com:3269/
  *
  * @global string $g_ldap_server
@@ -3107,11 +3105,12 @@ $g_bugnote_link_tag = '~';
  * this is the prefix to use when creating links to bug views from bug counts
  * (eg. on the main page and the summary page).
  * Default is a temporary filter
- * only change the filter this time - 'view_all_set.php?type=1&amp;temporary=y'
- * permanently change the filter - 'view_all_set.php?type=1';
+ * only change the filter this time - 'view_all_set.php?type=' . FILTER_ACTION_PARSE_NEW . '&amp;temporary=y'
+ * permanently change the filter - 'view_all_set.php?type=' . FILTER_ACTION_PARSE_NEW;
+ * (FILTER_ACTION_xxx constants are defined in core/constant_inc.php)
  * @global string $g_bug_count_hyperlink_prefix
  */
-$g_bug_count_hyperlink_prefix = 'view_all_set.php?type=1&amp;temporary=y';
+$g_bug_count_hyperlink_prefix = 'view_all_set.php?type=' . FILTER_ACTION_PARSE_NEW . '&amp;temporary=y';
 
 /**
  * The regular expression to use when validating new user login names
@@ -3749,13 +3748,6 @@ $g_my_view_boxes = array(
 	'my_comments'   => '0'
 );
 
-/**
- * Toggle whether 'My View' boxes are shown in a fixed position (i.e. adjacent
- * boxes start at the same vertical position)
- * @global integer $g_my_view_boxes_fixed_position
- */
-$g_my_view_boxes_fixed_position = ON;
-
 
 #############
 # RSS Feeds #
@@ -4343,7 +4335,7 @@ $g_global_settings = array(
 	'hostname','html_valid_tags', 'html_valid_tags_single_line', 'default_language',
 	'language_auto_map', 'fallback_language', 'login_method', 'plugins_enabled',
 	'session_save_path', 'session_validation', 'show_detailed_errors', 'show_queries_count',
-	'stop_on_errors', 'version_suffix', 'debug_email',
+	'show_timer', 'show_memory_usage', 'stop_on_errors', 'version_suffix', 'debug_email',
 	'fileinfo_magic_db_file', 'css_include_file', 'css_rtl_include_file',
 	'file_type_icons', 'path', 'short_path', 'absolute_path', 'core_path',
 	'class_path','library_path', 'language_path', 'absolute_path_default_upload_folder',
@@ -4571,7 +4563,6 @@ $g_public_config_names = array(
 	'monitor_delete_others_bug_threshold',
 	'move_bug_threshold',
 	'my_view_boxes',
-	'my_view_boxes_fixed_position',
 	'my_view_bug_count',
 	'news_enabled',
 	'news_limit_method',

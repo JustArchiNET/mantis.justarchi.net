@@ -256,7 +256,7 @@ function print_filter_values_user_monitor( array $p_filter ) {
 		} else if( true == $t_none_found ) {
 			echo lang_get( 'none' );
 		} else {
-			echo string_display_line( $t_output );
+			echo string_display( $t_output );
 		}
 	}
 }
@@ -332,7 +332,7 @@ function print_filter_values_handler_id( array $p_filter ) {
 		if( true == $t_any_found ) {
 			echo lang_get( 'any' );
 		} else {
-			echo string_display_line( $t_output );
+			echo string_display( $t_output );
 		}
 	}
 }
@@ -851,11 +851,12 @@ function print_filter_show_version( array $p_filter = null ) {
 	if( null === $p_filter ) {
 		$p_filter = $g_filter;
 	}
+	$t_projects = filter_get_included_projects( $p_filter );
 	?><!-- Version -->
 		<select class="input-xs" <?php echo filter_select_modifier( $p_filter ) ?> name="<?php echo FILTER_PROPERTY_VERSION;?>[]">
 			<option value="<?php echo META_FILTER_ANY?>"<?php check_selected( $p_filter[FILTER_PROPERTY_VERSION], (string)META_FILTER_ANY );?>>[<?php echo lang_get( 'any' )?>]</option>
 			<option value="<?php echo META_FILTER_NONE?>"<?php check_selected( $p_filter[FILTER_PROPERTY_VERSION], (string)META_FILTER_NONE );?>>[<?php echo lang_get( 'none' )?>]</option>
-			<?php print_version_option_list( $p_filter[FILTER_PROPERTY_VERSION], null, VERSION_ALL, false, true )?>
+			<?php print_version_option_list( $p_filter[FILTER_PROPERTY_VERSION], $t_projects, VERSION_ALL, false )?>
 		</select>
 		<?php
 }
@@ -909,11 +910,12 @@ function print_filter_show_fixed_in_version( array $p_filter = null ) {
 	if( null === $p_filter ) {
 		$p_filter = $g_filter;
 	}
+	$t_projects = filter_get_included_projects( $p_filter );
 	?><!-- Fixed in Version -->
 		<select class="input-xs" <?php echo filter_select_modifier( $p_filter ) ?> name="<?php echo FILTER_PROPERTY_FIXED_IN_VERSION;?>[]">
 			<option value="<?php echo META_FILTER_ANY?>"<?php check_selected( $p_filter[FILTER_PROPERTY_FIXED_IN_VERSION], (string)META_FILTER_ANY );?>>[<?php echo lang_get( 'any' )?>]</option>
 			<option value="<?php echo META_FILTER_NONE?>"<?php check_selected( $p_filter[FILTER_PROPERTY_FIXED_IN_VERSION], (string)META_FILTER_NONE );?>>[<?php echo lang_get( 'none' )?>]</option>
-			<?php print_version_option_list( $p_filter[FILTER_PROPERTY_FIXED_IN_VERSION], null, VERSION_ALL, false, true )?>
+			<?php print_version_option_list( $p_filter[FILTER_PROPERTY_FIXED_IN_VERSION], $t_projects, VERSION_ALL, false )?>
 		</select>
 		<?php
 }
@@ -968,11 +970,12 @@ function print_filter_show_target_version( array $p_filter = null ) {
 	if( null === $p_filter ) {
 		$p_filter = $g_filter;
 	}
+	$t_projects = filter_get_included_projects( $p_filter );
 	?><!-- Fixed in Version -->
 		<select class="input-xs" <?php echo filter_select_modifier( $p_filter ) ?> name="<?php echo FILTER_PROPERTY_TARGET_VERSION;?>[]">
 			<option value="<?php echo META_FILTER_ANY?>"<?php check_selected( $p_filter[FILTER_PROPERTY_TARGET_VERSION], (string)META_FILTER_ANY );?>>[<?php echo lang_get( 'any' )?>]</option>
 			<option value="<?php echo META_FILTER_NONE?>"<?php check_selected( $p_filter[FILTER_PROPERTY_TARGET_VERSION], (string)META_FILTER_NONE );?>>[<?php echo lang_get( 'none' )?>]</option>
-			<?php print_version_option_list( $p_filter[FILTER_PROPERTY_TARGET_VERSION], null, VERSION_ALL, false, true )?>
+			<?php print_version_option_list( $p_filter[FILTER_PROPERTY_TARGET_VERSION], $t_projects, VERSION_ALL, false )?>
 		</select>
 		<?php
 }
@@ -1172,7 +1175,7 @@ function print_filter_values_sticky_issues( array $p_filter ) {
 	?>
 	<input type="hidden" name="<?php
 		echo FILTER_PROPERTY_STICKY; ?>" value="<?php
-		echo $t_sticky_filter_state ? 'on' : 'off'; ?>" />
+		echo $t_sticky_filter_state ? ON : OFF; ?>" />
 	<?php
 }
 
@@ -2366,13 +2369,16 @@ function print_multivalue_field( $p_field_name, $p_field_value ) {
  * not available on the client, and the form was rendered with dynamic fields.
  * By default, the fallback is the current page.
  *
- * @param array $p_filter	Filter array to show.
- * @param boolean $p_for_screen	Type of output
- * @param boolean $p_static	Whether to print a static form (no dynamic fields)
- * @param string $p_static_fallback_page	Page name to use as javascript fallback
+ * @param array   $p_filter               Filter array to show.
+ * @param boolean $p_for_screen           Type of output
+ * @param boolean $p_static               Whether to print a static form (no dynamic fields)
+ * @param string  $p_static_fallback_page Page name to use as javascript fallback
+ * @param boolean $p_show_search          Whether to render the search field inside
+ *                                        the general fields area. If false, the text
+ *                                        search should be managed externally.
  * @return void
  */
-function filter_form_draw_inputs( $p_filter, $p_for_screen = true, $p_static = false, $p_static_fallback_page = null ) {
+function filter_form_draw_inputs( $p_filter, $p_for_screen = true, $p_static = false, $p_static_fallback_page = null, $p_show_search = true ) {
 
 	$t_filter = filter_ensure_valid_filter( $p_filter );
 	$t_view_type = $t_filter['_view_type'];
@@ -2392,6 +2398,8 @@ function filter_form_draw_inputs( $p_filter, $p_for_screen = true, $p_static = f
 		$t_project_id = helper_get_current_project();
 	}
 
+	$t_filter_projects = filter_get_included_projects( $t_filter, $t_project_id );
+
 	if( null === $p_static_fallback_page ) {
 		$p_static_fallback_page = $_SERVER['SCRIPT_NAME'];
 	}
@@ -2404,7 +2412,7 @@ function filter_form_draw_inputs( $p_filter, $p_for_screen = true, $p_static = f
 		: FILTER_VIEW_TYPE_SIMPLE;
 	$t_filters_url .= '?' . http_build_query( $t_get_params );
 
-	$t_show_product_version =  version_should_show_product_version( $t_project_id );
+	$t_show_product_version =  version_should_show_product_version( $t_filter_projects );
 	$t_show_build = $t_show_product_version && ( config_get( 'enable_product_build' ) == ON );
 
 	# overload handler_id setting if user isn't supposed to see them (ref #6189)
@@ -2420,8 +2428,8 @@ function filter_form_draw_inputs( $p_filter, $p_for_screen = true, $p_static = f
 		$t_dynamic_filter_expander_class = '';
 	}
 
-	$get_field_header = function ( $p_id, $p_label ) use ( $t_filters_url, $p_static, $t_filter, $t_source_query_id, $t_dynamic_filter_expander_class ) {
-		if( $p_static) {
+	$get_field_header = function ( $p_id, $p_label, $p_dynamic = true ) use ( $t_filters_url, $p_static, $t_filter, $t_source_query_id, $t_dynamic_filter_expander_class ) {
+		if( $p_static || !$p_dynamic ) {
 			return $p_label;
 		} else {
 			if( filter_is_temporary( $t_filter ) ) {
@@ -2733,14 +2741,32 @@ function filter_form_draw_inputs( $p_filter, $p_for_screen = true, $p_static = f
 			'highlight_changed_filter_target' /* content id */
 			));
 
+	if( $p_show_search ) {
+		$t_section_search = new FilterBoxGridLayout( $t_filter_cols , FilterBoxGridLayout::ORIENTATION_HORIZONTAL );
+
+		$t_section_search->add_item( new TableFieldsItem(
+				$get_field_header( 'search_filter', lang_get( 'search' ), false /* don't expand this field */ ),
+				filter_form_get_input( $t_filter, 'search', $t_show_inputs ),
+				$t_filter_cols /* colspan */,
+				'bigger-120' /* class */,
+				'search_filter_target' /* content id */
+				));
+	}
+
 	?>
-	<table class="table table-bordered table-condensed2">
-		<?php $t_row1->render() ?>
-		<?php $t_row2->render() ?>
-		<?php $t_row3->render() ?>
-		<?php $t_row_extra->render() ?>
-		<tr class="spacer"></tr>
-		<?php $t_section_last->render() ?>
+	<table class="table table-bordered table-condensed2 filters">
+		<?php
+		$t_row1->render();
+		$t_row2->render();
+		$t_row3->render();
+		$t_row_extra->render();
+		echo '<tr class="spacer"></tr>';
+		$t_section_last->render();
+		if( $p_show_search ) {
+			echo '<tr class="spacer"></tr>';
+			$t_section_search->render();
+		}
+		?>
 	</table>
 	<?php
 }
@@ -2801,4 +2827,30 @@ class FilterBoxGridLayout extends TableGridLayout {
 		echo '&nbsp;';
 		echo '</td>';
 	}
+}
+
+
+/**
+ * Print the current value of this filter field, as visible string, and as a hidden form input.
+ * @param array $p_filter	Filter array
+ * @return void
+ */
+function print_filter_values_search( array $p_filter ) {
+	# always show the search text input
+	print_filter_search( $p_filter );
+}
+
+/**
+ * print search field
+ * @global array $g_filter
+ * @param array $p_filter Filter array
+ * @return void
+ */
+function print_filter_search( array $p_filter = null ) {
+	global $g_filter;
+	if( null === $p_filter ) {
+		$p_filter = $g_filter;
+	}
+	echo '<input type="text" id="filter-search-txt" class="input-sm" size="48" name="', FILTER_PROPERTY_SEARCH, '"
+		placeholder="' . lang_get( 'search' ) . '" value="', string_attribute( $p_filter[FILTER_PROPERTY_SEARCH] ), '" />';
 }

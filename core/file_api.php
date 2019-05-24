@@ -1027,7 +1027,7 @@ function file_get_mime_type( $p_file_path ) {
 /**
  * Get mime type for the specified content.
  *
- * @param string $p_file_path The file path.
+ * @param string $p_content The content.
  * @return boolean|string The mime type or false on failure.
  */
 function file_get_mime_type_for_content( $p_content ) {
@@ -1246,4 +1246,13 @@ function file_get_content_type_override( $p_filename ) {
 	}
 
 	return null;
+}
+
+/**
+ * Return the maximum file size that can be uploaded, based on mantis and php
+ * configured setting.
+ * @return integer	File size in bytes
+ */
+function file_get_max_file_size() {
+	return (int)min( ini_get_number( 'upload_max_filesize' ), ini_get_number( 'post_max_size' ), config_get( 'max_file_size' ) );
 }

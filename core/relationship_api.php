@@ -698,19 +698,14 @@ function relationship_get_id_from_api_name( $p_relationship_type_name ) {
  */
 function relationship_can_resolve_bug( $p_bug_id ) {
 	# retrieve all the relationships in which the bug is the source bug
-	$t_relationship = relationship_get_all_src( $p_bug_id );
-	$t_relationship_count = count( $t_relationship );
-	if( $t_relationship_count == 0 ) {
-		return true;
-	}
+	$t_relationships = relationship_get_all_src( $p_bug_id );
 
-	for( $i = 0;$i < $t_relationship_count;$i++ ) {
+	foreach( $t_relationships as $t_relationship ) {
 		# verify if each bug in relation BUG_DEPENDANT is already marked as resolved
-		if( $t_relationship[$i]->type == BUG_DEPENDANT ) {
-			$t_dest_bug_id = $t_relationship[$i]->dest_bug_id;
-			$t_status = bug_get_field( $t_dest_bug_id, 'status' );
+		if( $t_relationship->type == BUG_DEPENDANT ) {
+			$t_status = bug_get_field( $t_relationship->dest_bug_id, 'status' );
 
-			if( $t_status < config_get( 'bug_resolved_status_threshold' ) ) {
+			if( $t_status < config_get( 'bug_resolved_status_threshold', null, null, $t_relationship->dest_project_id ) ) {
 				# the bug is NOT marked as resolved/closed
 				return false;
 			}
@@ -770,9 +765,9 @@ function relationship_get_details( $p_bug_id, BugRelationshipData $p_relationshi
 	$t_relationship_info_html = $t_td . string_no_break( $t_relationship_descr ) . '&#160;</td>';
 	if( $p_html_preview == false ) {
 		# choose color based on status
-		$status_label = html_get_status_css_class( $t_bug->status, auth_get_current_user_id(), $t_bug->project_id );
+		$t_status_css = html_get_status_css_fg( $t_bug->status, auth_get_current_user_id(), $t_bug->project_id );
 		$t_relationship_info_html .= '<td><a href="' . string_get_bug_view_url( $t_related_bug_id ) . '">' . string_display_line( bug_format_id( $t_related_bug_id ) ) . '</a></td>';
-		$t_relationship_info_html .= '<td><i class="fa fa-square fa-status-box ' . $status_label . '"></i> ';
+		$t_relationship_info_html .= '<td><i class="fa fa-square fa-status-box ' . $t_status_css . '"></i> ';
 		$t_relationship_info_html .= '<span class="issue-status" title="' . string_attribute( $t_resolution_string ) . '">' . string_display_line( $t_status_string ) . '</span></td>';
 	} else {
 		$t_relationship_info_html .= $t_td . string_display_line( bug_format_id( $t_related_bug_id ) ) . '</td>';

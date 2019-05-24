@@ -101,6 +101,10 @@ $g_filter = null;
 # indexed by filter_id, contains the filter rows as read from db table
 $g_cache_filter_db_rows = array();
 
+# @global array $g_cache_filter_subquery
+# indexed by a hash of the filter array, contains a prebuilt BugFilterQuery object
+$g_cache_filter_subquery = array();
+
 /**
  * Initialize the filter API with the current filter.
  * @param array $p_filter The filter to set as the current filter.
@@ -1278,7 +1282,7 @@ function filter_get_bug_count( array $p_query_clauses, $p_pop_param = true ) {
 
 	error_parameters( __FUNCTION__ . '()', 'BugFilterQuery class' );
 	trigger_error( ERROR_DEPRECATED_SUPERSEDED, DEPRECATED );
-	# If query caluses is an empty array, the query can't be created
+	# If query clauses is an empty array, the query can't be created
 	if( empty( $p_query_clauses ) ) {
 		if( $p_pop_param ) {
 			# reset the db_param stack, this woould have been done by db_query if executed
@@ -2482,62 +2486,46 @@ function filter_cache_result( array $p_rows, array $p_id_array_lastmod ) {
  * Prints the filter selection area for both the bug list view screen and
  * the bug list print screen. This function was an attempt to make it easier to
  * add new filters and rearrange them on screen for both pages.
- * @param integer $p_page_number Page number.
- * @param boolean $p_for_screen  Whether output is for screen view.
- * @param boolean $p_expanded    Whether to display expanded.
  * @return void
  */
-function filter_draw_selection_area( $p_page_number, $p_for_screen = true, $p_expanded = true ) {
-	$t_form_name_suffix = $p_expanded ? '_open' : '_closed';
+function filter_draw_selection_area() {
+	$t_form_name_suffix = '_open';
 
 	$t_filter = current_user_get_bug_filter();
 	$t_filter = filter_ensure_valid_filter( $t_filter === false ? array() : $t_filter );
-	$t_page_number = (int)$p_page_number;
 
 	$t_view_type = $t_filter['_view_type'];
 
-	$t_action = 'view_all_set.php?f=3';
-	if( $p_for_screen == false ) {
-		$t_action = 'view_all_set.php';
-	}
-	if( $p_expanded ) {
-		# in expanded form, all field are sent
-		$t_view_all_set_type = 1;
-	} else {
-		# in condensed form, only the search field is sent, to be added over current filter values.
-		$t_view_all_set_type = 5;
-	}
 	?>
 	<div class="col-md-12 col-xs-12">
 	<div class="filter-box">
-		<form method="post" name="filters<?php echo $t_form_name_suffix?>" id="filters_form<?php echo $t_form_name_suffix?>" action="<?php echo $t_action;?>">
-		<?php # CSRF protection not required here - form does not result in modifications ?>
-		<input type="hidden" name="type" value="<?php echo $t_view_all_set_type ?>" />
-		<?php
-		if( filter_is_temporary( $t_filter ) ) {
-			echo '<input type="hidden" name="filter" value="' . filter_get_temporary_key( $t_filter ) . '" />';
-		}
-		if( $p_for_screen == false ) {
-			echo '<input type="hidden" name="print" value="1" />';
-			echo '<input type="hidden" name="offset" value="0" />';
-		}
-		?>
-		<input type="hidden" name="page_number" value="<?php echo $t_page_number?>" />
-		<input type="hidden" name="view_type" value="<?php echo $t_view_type?>" />
+
 	<?php
 	$t_stored_queries_arr = filter_db_get_available_queries();
-	if( $p_expanded ) {
-		$t_collapse_block = is_collapsed( 'filter' );
-		$t_block_css = $t_collapse_block ? 'collapsed' : '';
-		$t_block_icon = $t_collapse_block ? 'fa-chevron-down' : 'fa-chevron-up';
-		?>
+	$t_is_temporary = filter_is_temporary( $t_filter );
+	$t_tmp_filter_param = $t_is_temporary ? '&filter=' . filter_get_temporary_key( $t_filter ) : '';
+	$t_can_persist = filter_user_can_use_persistent( auth_get_current_user_id() );
+
+	$t_collapse_block = is_collapsed( 'filter' );
+	$t_block_css = $t_collapse_block ? 'collapsed' : '';
+	$t_block_icon = $t_collapse_block ? 'fa-chevron-down' : 'fa-chevron-up';
+
+	# further use of this icon must be inlined to avoid spaces in rendered html
+	$t_temporary_icon_html = ( $t_is_temporary && $t_can_persist ) ?
+		'<i class="fa fa-clock-o fa-xs-top" title="' . lang_get( 'temporary_filter' ) . '"></i>'
+		: '';
+	$t_url_reset_filter = 'view_all_set.php?type=' . FILTER_ACTION_RESET;
+	$t_url_persist_filter = 'view_all_set.php?temporary=n' . $t_tmp_filter_param . '&set_project_id=' . helper_get_current_project();
+	?>
 
 		<div id="filter" class="widget-box widget-color-blue2 <?php echo $t_block_css ?>">
 		<div class="widget-header widget-header-small">
 			<h4 class="widget-title lighter">
-				<i class="ace-icon fa fa-filter"></i>
+				<i class="ace-icon fa fa-filter"><?php echo $t_temporary_icon_html ?>
+				</i>
 				<?php echo lang_get( 'filters' ) ?>
 			</h4>
+
 			<div class="widget-toolbar">
 				<?php
 					$t_view_filters = config_get('view_filters');
@@ -2552,7 +2540,7 @@ function filter_draw_selection_area( $p_page_number, $p_for_screen = true, $p_ex
 						<ul class="dropdown-menu dropdown-menu-right dropdown-yellow dropdown-caret dropdown-closer">
 							<?php
 							$t_url = config_get( 'use_dynamic_filters' )
-								? 'view_all_set.php?type=6&amp;view_type='
+								? 'view_all_set.php?type=' . FILTER_ACTION_PARSE_ADD . $t_tmp_filter_param . '&view_type='
 								: 'view_filters_page.php?view_type=';
 							filter_print_view_type_toggle( $t_url, $t_filter['_view_type'] );
 
@@ -2572,7 +2560,15 @@ function filter_draw_selection_area( $p_page_number, $p_for_screen = true, $p_ex
 								echo '<i class="ace-icon fa fa-wrench"></i>&#160;&#160;' . lang_get( 'open_queries' );
 								echo '</a>';
 								echo '</li>';
-							} ?>
+							}
+							if( $t_is_temporary && $t_can_persist ) {
+								echo '<li>';
+								echo '<a href="' . $t_url_persist_filter . '">';
+								echo '<i class="ace-icon fa fa-thumb-tack"></i>&#160;&#160;' . lang_get( 'set_as_persistent_filter' );
+								echo '</a>';
+								echo '</li>';
+							}
+							?>
 						</ul>
 					</div>
 				<?php } ?>
@@ -2580,12 +2576,31 @@ function filter_draw_selection_area( $p_page_number, $p_for_screen = true, $p_ex
 					<i class="1 ace-icon fa bigger-125 <?php echo $t_block_icon ?>"></i>
 				</a>
 			</div>
-			<?php if( count( $t_stored_queries_arr ) > 0 ) { ?>
-				<div id="filter-bar-queries" class="widget-toolbar hidden-xs" style="display: <?php echo $t_collapse_block ? 'block' : 'none' ?>">
-					<div class="widget-menu margin-left-8 margin-right-8">
+			<div id="filter-bar-queries" class="widget-toolbar no-border" style="display: <?php echo $t_collapse_block ? 'block' : 'none' ?>">
+				<div class="widget-menu margin-left-8">
+				<?php
+				if( $t_is_temporary && $t_can_persist ) {
+				?>
+					<a class="btn btn-primary btn-white btn-round btn-xs"
+					   title="<?php echo lang_get( 'set_as_persistent_filter' ) ?>"
+					   href="<?php echo $t_url_persist_filter ?>">
+						<i class="ace-icon fa fa-thumb-tack"></i>
+					</a>
+				<?php
+				}
+				?>
+					<a class="btn btn-primary btn-white btn-round btn-xs"
+					   title="<?php echo lang_get( 'reset_query' ) ?>"
+					   href="<?php echo $t_url_reset_filter ?>">
+						<i class="ace-icon fa fa-times"></i>
+					</a>
+				</div>
+				<?php if( count( $t_stored_queries_arr ) > 0 ) { ?>
+				<div class="widget-menu hidden-xs">
+					<form method="post" action="view_all_set.php">
+						<input type="hidden" name="type" value="<?php echo FILTER_ACTION_LOAD ?>" />
 						<select id="filter-bar-query-id" class="input-xs">
 							<option value="-1"></option>
-							<option value="-1"><?php echo '[' . lang_get( 'reset_query' ) . ']'?></option>
 							<?php
 							$t_source_query_id = isset( $t_filter['_source_query_id'] ) ? (int)$t_filter['_source_query_id'] : -1;
 							foreach( $t_stored_queries_arr as $t_query_id => $t_query_name ) {
@@ -2595,99 +2610,124 @@ function filter_draw_selection_area( $p_page_number, $p_for_screen = true, $p_ex
 							}
 							?>
 						</select>
-					</div>
+					</form>
 				</div>
-			<?php } ?>
-			<div id="filter-bar-search" class="widget-toolbar no-border" style="display: <?php echo $t_collapse_block ? 'block' : 'none' ?>">
-				<div class="widget-menu margin-left-8 margin-right-8">
-					<input id="filter-bar-search-txt" type="text" size="16" class="input-xs"
-						   placeholder="<?php echo lang_get( 'search' ) ?>"
-						   value="<?php echo string_attribute( $t_filter[FILTER_PROPERTY_SEARCH] ); ?>" />
-					<button id="filter-bar-search-btn" type="submit" name="filter_submit" class="btn btn-primary btn-white btn-round btn-xs"
-							title="<?php echo lang_get( 'filter_button' ) ?>">
-						<i class="ace-icon fa fa-search"></i>
-					</button>
+				<?php } ?>
+				<div class="widget-menu margin-right-8">
+
+					<form method="post" action="view_all_set.php">
+						<input type="hidden" name="type" value="<?php echo FILTER_ACTION_PARSE_ADD ?>" />
+						<input id="filter-bar-search-txt" type="text" size="16" class="input-xs"
+							   placeholder="<?php echo lang_get( 'search' ) ?>"
+							   name="<?php echo FILTER_PROPERTY_SEARCH ?>"
+							   value="<?php echo string_attribute( $t_filter[FILTER_PROPERTY_SEARCH] ); ?>" />
+						<button id="filter-bar-search-btn" type="submit" name="filter_submit" class="btn btn-primary btn-white btn-round btn-xs"
+								title="<?php echo lang_get( 'filter_button' ) ?>">
+							<i class="ace-icon fa fa-search"></i>
+						</button>
+					</form>
+
 				</div>
 			</div>
 		</div>
 
 		<div class="widget-body">
-		<div class="widget-main no-padding">
+			<div class="widget-toolbox padding-4 clearfix">
+				<div class="btn-toolbar">
+					<div class="form-inline">
+						<div class="btn-group pull-left">
+	<?php
+	# Top left toolbar for buttons
 
-		<div class="table-responsive">
-
-		<?php
-		filter_form_draw_inputs( $t_filter, $p_for_screen, false, 'view_filters_page.php' );
-		?>
-
-		</div>
-		</div>
-		</div>
-		<?php
-	}
-
-	echo '<div class="widget-toolbox padding-8 clearfix">';
-	echo '<div class="btn-toolbar pull-left">';
-
-	# expanded
-	echo '<div class="form-inline">';
-	echo '<input type="text" id="filter-search-txt" class="input-sm" size="16" name="', FILTER_PROPERTY_SEARCH, '"
-		placeholder="' . lang_get( 'search' ) . '" value="', string_attribute( $t_filter[FILTER_PROPERTY_SEARCH] ), '" />';
+	$t_url_reset_filter = 'view_all_set.php?type=' . FILTER_ACTION_RESET;
+	if( $t_is_temporary && $t_can_persist ) {
 	?>
-	<input type="submit" class="btn btn-primary btn-sm btn-white btn-round no-float" name="filter_submit" value="<?php echo lang_get( 'filter_button' )?>" />
-	</div>
-	<?php
-
-	echo '</form></div>';
-	echo '<div class="btn-toolbar pull-right">';
-	echo '<div class="btn-group">';
-
-	if( access_has_project_level( config_get( 'stored_query_create_threshold' ) ) ) { ?>
-		<form class="form-inline pull-left" method="post" name="save_query" action="query_store_page.php">
-			<?php # CSRF protection not required here - form does not result in modifications
-			if( filter_is_temporary( $t_filter ) ) {
-				echo '<input type="hidden" name="filter" value="' . filter_get_temporary_key( $t_filter ) . '" />';
-			}
-			?>
-			<input type="submit" name="save_query_button" class="btn btn-primary btn-white btn-sm btn-round"
-				value="<?php echo lang_get( 'save_query' )?>" />
-		</form>
+							<a class="btn btn-sm btn-primary btn-white btn-round" href="<?php echo $t_url_persist_filter ?>">
+								<i class="ace-icon fa fa-thumb-tack"></i>
+								<?php echo lang_get( 'persist' ) ?>
+							</a>
 	<?php
 	}
+	?>
+							<a class="btn btn-sm btn-primary btn-white btn-round" href="<?php echo $t_url_reset_filter ?>">
+								<i class="ace-icon fa fa-times"></i>
+								<?php echo lang_get( 'reset' ) ?>
+							</a>
+
+	<?php
+	if( access_has_project_level( config_get( 'stored_query_create_threshold' ) ) ) {
+		$t_url_save_filter = 'query_store_page.php';
+		if( filter_is_temporary( $t_filter ) ) {
+			$t_url_save_filter .= '?filter=' . filter_get_temporary_key( $t_filter );
+		}
+	?>
+							<a class="btn btn-sm btn-primary btn-white btn-round" href="<?php echo $t_url_save_filter ?>">
+								<i class="ace-icon fa fa-floppy-o"></i>
+								<?php echo lang_get( 'save' ) ?>
+							</a>
+	<?php
+	}
+	?>
+						</div>
+
+	<?php
 	if( count( $t_stored_queries_arr ) > 0 ) { ?>
-		<form id="filter-queries-form" class="form-inline pull-left padding-left-8"  method="get" name="list_queries<?php echo $t_form_name_suffix;?>" action="view_all_set.php">
-			<?php # CSRF protection not required here - form does not result in modifications?>
-			<input type="hidden" name="type" value="3" />
-			<select name="source_query_id">
-				<option value="-1"></option>
-				<option value="-1"><?php echo '[' . lang_get( 'reset_query' ) . ']'?></option>
+						<form id="filter-queries-form" class="form-inline pull-left padding-left-8"  method="get" name="list_queries<?php echo $t_form_name_suffix;?>" action="view_all_set.php">
+							<?php # CSRF protection not required here - form does not result in modifications?>
+							<input type="hidden" name="type" value="<?php echo FILTER_ACTION_LOAD ?>" />
+							<label><?php echo lang_get( 'load' ) ?>
+								<select class="input-s" name="source_query_id">
+									<option value="-1"></option>
+									<?php
+									$t_source_query_id = isset( $t_filter['_source_query_id'] ) ? (int)$t_filter['_source_query_id'] : -1;
+									foreach( $t_stored_queries_arr as $t_query_id => $t_query_name ) {
+										echo '<option value="' . $t_query_id . '" ';
+										check_selected( $t_query_id, $t_source_query_id );
+										echo '>' . string_display_line( $t_query_name ) . '</option>';
+									}
+									?>
+								</select>
+							</label>
+						</form>
+	<?php
+	}
+	?>
+					</div>
+				</div>
+			</div>
+
+			<form method="post" name="filters<?php echo $t_form_name_suffix?>" id="filters_form<?php echo $t_form_name_suffix?>" action="view_all_set.php">
+				<?php # CSRF protection not required here - form does not result in modifications ?>
+				<input type="hidden" name="type" value="<?php echo FILTER_ACTION_PARSE_NEW ?>" />
 				<?php
-				$t_source_query_id = isset( $t_filter['_source_query_id'] ) ? (int)$t_filter['_source_query_id'] : -1;
-				foreach( $t_stored_queries_arr as $t_query_id => $t_query_name ) {
-					echo '<option value="' . $t_query_id . '" ';
-					check_selected( $t_query_id, $t_source_query_id );
-					echo '>' . string_display_line( $t_query_name ) . '</option>';
+				if( filter_is_temporary( $t_filter ) ) {
+					echo '<input type="hidden" name="filter" value="' . filter_get_temporary_key( $t_filter ) . '" />';
 				}
 				?>
-			</select>
-		</form>
-	<?php
-	} else { ?>
-		<form class="form-inline pull-left" method="get" name="reset_query" action="view_all_set.php">
-			<?php # CSRF protection not required here - form does not result in modifications ?>
-			<input type="hidden" name="type" value="3" />
-			<input type="hidden" name="source_query_id" value="-1" />
-			<input type="submit" name="reset_query_button" class="btn btn-primary btn-white btn-sm btn-round" value="<?php echo lang_get( 'reset_query' )?>" />
-		</form>
-	<?php
-	}
-	?>
+				<input type="hidden" name="view_type" value="<?php echo $t_view_type?>" />
 
+			<div class="widget-main no-padding">
+				<div class="table-responsive">
+					<?php
+					filter_form_draw_inputs( $t_filter, true, false, 'view_filters_page.php', false /* don't show search */ );
+					?>
+				</div>
+			</div>
 
-	</div>
-	</div>
-	</div>
-	</div>
+			<div class="widget-toolbox padding-8 clearfix">
+				<div class="btn-toolbar pull-left">
+					<div class="form-inline">
+						<?php echo '<input type="text" id="filter-search-txt" class="input-sm" size="16" name="', FILTER_PROPERTY_SEARCH, '"'
+							, ' placeholder="' . lang_get( 'search' ) . '" value="', string_attribute( $t_filter[FILTER_PROPERTY_SEARCH] ), '" />';
+						?>
+						<input type="submit" class="btn btn-primary btn-sm btn-white btn-round no-float" name="filter_submit" value="<?php echo lang_get( 'filter_button' )?>" />
+					</div>
+				</div>
+			</div>
+
+			</form>
+		</div>
+		</div>
 	</div>
 	</div>
 <?php
@@ -3131,6 +3171,18 @@ function filter_create_recently_modified( $p_days, $p_filter = null ) {
 }
 
 /**
+ * Create a filter for getting any issues without restrictions
+ * @return mixed A valid filter.
+ */
+function filter_create_any() {
+	$t_filter = filter_get_default();
+
+	$t_filter[FILTER_PROPERTY_HIDE_STATUS] = META_FILTER_NONE;
+
+	return filter_ensure_valid_filter( $t_filter );
+}
+
+/**
  * Create a filter for getting issues assigned to the specified project and user that
  * are not yet resolved.
  *
@@ -3514,6 +3566,7 @@ function filter_gpc_get( array $p_filter = null ) {
 	if( isset( $t_filter['_filter_id'] ) ) {
 		$t_filter_input['_filter_id'] = $t_filter['_filter_id'];
 	}
+	# Don't copy cached subquery '_subquery' property
 
 	return filter_ensure_valid_filter( $t_filter_input );
 }
@@ -3772,11 +3825,18 @@ function filter_get( $p_filter_id, array $p_default = null ) {
  * Return a standard filter
  * @param string $p_filter_name     The name of the filter
  * @param integer|null $p_user_id   A user id to build this filter. Null for current user
+ * @param integer|null $p_project_id	 A project id to build this filter.  Null for current project
  * @return null|boolean|array       null filter not found, false invalid filter, otherwise the filter.
  */
-function filter_standard_get( $p_filter_name, $p_user_id = null ) {
+function filter_standard_get( $p_filter_name, $p_user_id = null, $p_project_id = null ) {
 	$p_filter_name = strtolower( $p_filter_name );
-	$t_project_id = helper_get_current_project();
+
+	if( null === $p_project_id ) {
+		$t_project_id = helper_get_current_project();
+	} else {
+		$t_project_id = $p_project_id;
+	}
+
 	if( null === $p_user_id ) {
 		$t_user_id = auth_get_current_user_id();
 	} else {
@@ -3784,6 +3844,9 @@ function filter_standard_get( $p_filter_name, $p_user_id = null ) {
 	}
 
 	switch( $p_filter_name ) {
+		case FILTER_STANDARD_ANY:
+			$t_filter = filter_create_any();
+			break;
 		case FILTER_STANDARD_ASSIGNED:
 			$t_filter = filter_create_assigned_to_unresolved( $t_project_id, $t_user_id );
 			break;
@@ -3932,11 +3995,14 @@ function filter_is_temporary( array $p_filter ) {
 /**
  * Returns a string formatted as GET parameter, suitable for tracking a
  * temporary filter by its session key.
- * The parameter can be ither an existing key, so its used directly,
- * or a filter array, which can contain a property with the key
- * If a filter is provided that does not contain the key property, an empty
- * string is returned.
+ * The parameter can be either:
+ * - an existing key to be used directly, or
+ * - a filter array, which can contain a property with the key.
+ * If the provided filter does not contain the key property, the function
+ * returns null.
+ *
  * @param array|string $p_key_or_filter	Either a string key, or a filter array
+ *
  * @return string|null	Formatted parameter string, or null
  */
 function filter_get_temporary_key_param( $p_key_or_filter ) {
@@ -3965,6 +4031,9 @@ function filter_clean_runtime_properties( array $p_filter ) {
 	if( isset( $p_filter['_filter_id'] ) ) {
 		unset( $p_filter['_filter_id'] );
 	}
+	if( isset( $p_filter['_subquery'] ) ) {
+		unset( $p_filter['_subquery'] );
+	}
 	return $p_filter;
 }
 
@@ -3981,5 +4050,45 @@ function filter_copy_runtime_properties( array $p_filter_to, array $p_filter_fro
 	if( isset( $p_filter_from['_filter_id'] ) ) {
 		$p_filter_to['_filter_id'] = $p_filter_from['_filter_id'];
 	}
+	# we don't copy '_subquery' property, which is a cached subquery object,
+	# and can be regenerated at demand
+
 	return $p_filter_to;
+}
+
+/**
+ * Return a cached BugFilterQuery object for the provided filter, configured and
+ * ready to be used as a subquery for building other queries.
+ * If the query is not in the cache, creates a new one and store it for later reuse.
+ * Note: Query objects are indexed by a hash value over the serialized contents of the
+ * filter array.
+ *
+ * Warning: Since the returned query is an object, it should not be modified in any way
+ * that changes the expected behavior from the original filter array, as any further
+ * reuse of this chached query will share the same instanced object.
+ * If such a modification is needed over the query object, a clone should be used
+ * instead, to avoid said side effects.
+ *
+ * @param array $p_filter	Filter array
+ * @return BugFilterQuery	A query object for the filter
+ */
+function filter_cache_subquery( array $p_filter ) {
+	global $g_cache_filter_subquery;
+
+	$t_hash = md5( json_encode( $p_filter ) );
+	if( !isset( $g_cache_filter_subquery[$t_hash] ) ) {
+		$g_cache_filter_subquery[$t_hash] = new BugFilterQuery( $p_filter, BugFilterQuery::QUERY_TYPE_IDS );
+	}
+
+	return $g_cache_filter_subquery[$t_hash];
+}
+/**
+ * Returns true if the user can use peristent filters, in contexts such as view_all_bug_page.
+ * Persistent filters are remembered across sessions, and are not desirable when the user is
+ * a shared user, eg: anonymous user
+ * @param integer $p_user_id	A valid user identifier.
+ * @return boolean true if the user can use persistent filters, false otherwise
+ */
+function filter_user_can_use_persistent( $p_user_id = null ) {
+	return !user_is_anonymous( $p_user_id );
 }

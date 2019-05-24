@@ -38,11 +38,13 @@
  * @ingroup Language
  * @file
  *
+ * @author --szabi--
  * @author Csega
  * @author Dj
  * @author Glanthor Reviol
  * @author Leiric
  * @author MeskoBalazs
+ * @author Misibacsi
  * @author R-Joe
  * @author Sucy
  * @author Tacsipacsi
@@ -87,7 +89,7 @@ $s_display_history = 'Előzmények megjelenítése';
 $s_public_project_msg = 'Ez egy nyilvános projekt, minden felhasználó hozzáférhet.';
 $s_private_project_msg = 'Ez egy privát projekt, csak az adminisztrátorok és a kézzel hozzáadott felhasználók férhetnek hozzá.';
 $s_access_level_project = 'Projekt hozzáférési szint';
-$s_view_submitted_bug_link = 'Beküldött ügy megtekintése %1$s';
+$s_view_submitted_bug_link = 'Beküldött %1$s ügy megtekintése';
 $s_assigned_projects = 'Hozzárendelt projektek';
 $s_assigned_projects_label = 'Hozzárendelt projektek';
 $s_unassigned_projects_label = 'Nem hozzárendelt projektek';
@@ -119,7 +121,7 @@ $s_bug_relationships = 'Kapcsolatok';
 $s_empty_password_sure_msg = 'A felhasználó jelszava üres. Valóban ezt akarja?';
 $s_empty_password_button = 'Üres jelszó használata';
 $s_reauthenticate_title = 'Hitelesítés';
-$s_reauthenticate_message = 'Egy biztonságos oldalra ért, és a biztonságos munkamenete lejárt. Hitelesítse magát a folytatáshoz.';
+$s_reauthenticate_message = 'Ön egy biztonságos oldalon van, és a biztonságos munkamenete lejárt. Hitelesítse magát a folytatáshoz.';
 $s_no_category = '(nincs kategória)';
 $s_global_categories = 'Globális kategóriák';
 $s_inherit = 'Kategóriák öröklése';
@@ -222,7 +224,7 @@ $s_eta_enum_string = '10:semmi,20:< 1 nap,30:2-3 nap,40:< 1 hét,50:< 1 hónap,6
 $s_sponsorship_enum_string = '0:Nem fizetett,1:Felkért,2:Fizetett';
 $s_new_account_subject = 'Regisztráció';
 $s_new_account_greeting = 'Köszönjük regisztrációját. Felhasználóneve: „%1$s”. A regisztráció befejezéséhez látogassa meg a következő címet (győződjön meg róla, hogy egy sorban írta be), és állítsa be saját jelszavát:';
-$s_new_account_greeting_admincreated = '%1$s felhasználó létrehozta a felhasználói fiókját, „%2$s” felhasználónévvel. Hogy befejezze a regisztrációját, látogasson el a következő címre (győződjön meg róla, hogy egyetlen sorba írja be) és állítsa be a jelszavát:';
+$s_new_account_greeting_admincreated = '%1$s felhasználó létrehozta a felhasználói fiókodat „%2$s” felhasználónévvel. A regisztráció befejezéséhez látogasd meg a következő címet (győződj meg róla, hogy egy sorban van írva), és állítsd be a saját jelszavadat:';
 $s_new_account_username = 'Felhasználónév:';
 $s_new_account_message = 'Ha nem kért regisztrációt, hagyja figyelmen kívül ezt az üzenetet, és semmi sem történik.';
 $s_new_account_do_not_reply = 'Ne válaszoljon erre a levélre';
@@ -363,7 +365,7 @@ $s_delete_profile = 'Profil törlése';
 $s_select_profile = 'Profil kiválasztása';
 $s_submit_button = 'Elküld';
 $s_profile_updated_msg = 'Profil frissítve…';
-$s_my_sponsorship = 'Az Ön támogatásai';
+$s_my_sponsorship = 'Támogatásaim';
 $s_update_sponsorship_button = 'Fizetés állapotának megváltoztatása';
 $s_no_sponsored = 'Nincs Önhöz rendelt támogatott ügy.';
 $s_own_sponsored = 'Az Ön által támogatott ügyek:';
@@ -583,6 +585,7 @@ $s_date_created = 'Létrehozás dátuma';
 $s_last_visit = 'Utolsó látogatás';
 $s_last_visit_label = 'Utolsó látogatás:';
 $s_edit_user_link = 'Felhasználó szerkesztése';
+$s_search_user_hint = 'Felhasználónév, valódi név vagy e-mail cím';
 $s_separate_list_items_by = '(listaelemek elválasztása ezzel: „%1$s”)';
 $s_config_all_projects = 'Megjegyzés: Ezek a beállítások MINDEN PROJEKTRE kihatnak, hacsak projektszinten nincsenek felülbírálva.';
 $s_config_project = 'Megjegyzés: Ezek a beállítások csak a(z) %1$s projektre vonatkoznak.';
@@ -720,6 +723,9 @@ $s_create_new_subproject_link = 'Új alprojekt létrehozása';
 $s_unlink_link = 'Kapcsolódás megszüntetése';
 $s_show_global_users = 'Globális eléréssel rendelkező felhasználók megjelenítése';
 $s_hide_global_users = 'Globális eléréssel rendelkező felhasználók elrejtése';
+$s_review_changes = 'Változtatások megtekintése';
+$s_review_changes_confirmation = 'Menteni akarja ezeket a következő változtatásokat?';
+$s_review_changes_empty = 'Nincs változás kiválasztva';
 $s_add_project_title = 'Projekt hozzáadása';
 $s_upload_file_path = 'Feltöltött fájlok elérési útja';
 $s_add_project_button = 'Projekt hozzáadása';
@@ -828,6 +834,8 @@ $s_add_user_button = 'Felhasználó hozzáadása';
 $s_project_selection_title = 'Projekt kiválasztása';
 $s_remove_link = 'Törlés';
 $s_remove_all_link = 'Minden törlése';
+$s_remove_project_user_title = 'A felhasználó hozzáférésének eltávolítása a projektből';
+$s_modify_project_user_title = 'A felhasználó hozzáférésének módosítása a projektben';
 $s_updated_user_msg = 'Felhasználó sikeresen frissítve';
 $s_must_enter_category = 'Ki kell választania egy kategóriát';
 $s_must_enter_severity = 'Ki kell választania egy súlyosságot';
@@ -897,6 +905,8 @@ $s_total_time = 'Összes idő';
 $s_developer_stats = 'Fejlesztők statisztikája';
 $s_reporter_stats = 'Bejelentők statisztikája';
 $s_orct = '(nyitott/megoldott/lezárt/összesen)';
+$s_summary_header = 'nyitva/megoldva/lezárva/összes/megoldási arány/arány';
+$s_summary_notice_filter_is_applied = 'A szűrő alkalmazásban van';
 $s_any = 'bármelyik';
 $s_all = 'mindegyik';
 $s_show = 'Megjelenítés';
@@ -954,6 +964,8 @@ $s_manage_filter_page_title = 'Szűrők kezelése';
 $s_manage_filter_edit_page_title = 'Szűrő szerkesztése';
 $s_delete_filter_button = 'Törlés';
 $s_apply_filter_button = 'Alkalmaz';
+$s_temporary_filter = 'Átmeneti szűrő';
+$s_set_as_persistent_filter = 'Beállítás tartós szűrőnek';
 $s_view_simple_link = 'Egyszerű nézet';
 $s_product_build = 'Termék build';
 $s_system_profile = 'Rendszer leírása';
@@ -1268,11 +1280,15 @@ $MANTIS_ERROR[ERROR_CONFIG_OPT_CANT_BE_SET_IN_DB] = 'A(z) „%1$s” konfigurác
 $MANTIS_ERROR[ERROR_CONFIG_OPT_BAD_SYNTAX] = 'Nem állítható be a(z) „%1$s" konfigurációs beállítás: %2$s';
 $MANTIS_ERROR[ERROR_LANG_STRING_NOT_FOUND] = 'A(z) „%1$s” szöveg hiányzik.';
 $MANTIS_ERROR[ERROR_BUGNOTE_NOT_FOUND] = 'Nincs ilyen megjegyzés.';
-$MANTIS_ERROR[ERROR_PROJECT_NOT_FOUND] = 'A(z) „%1$s” projekt nem található.';
 $MANTIS_ERROR[ERROR_DB_FIELD_NOT_FOUND] = 'A(z) „%1$s” adatbázismező hiányzik.';
 $MANTIS_ERROR[ERROR_HANDLER_ACCESS_TOO_LOW] = 'Az ügy kezelőjének az ügy jelen állapotában nincs elég joga az ügy kezeléséhez.';
+$MANTIS_ERROR[ERROR_PROJECT_HIERARCHY_DISABLED] = 'A projekthierarchia (alprojektek) le van tiltva.';
+$MANTIS_ERROR[ERROR_PROJECT_NOT_FOUND] = 'A(z) „%1$s” projekt nem található.';
 $MANTIS_ERROR[ERROR_PROJECT_NAME_NOT_UNIQUE] = 'Már létezik ilyen nevű projekt. Lépjen vissza, és adjon meg egy másik nevet.';
 $MANTIS_ERROR[ERROR_PROJECT_NAME_INVALID] = 'Hibásan megadott projektnév: a projektnév nem lehet üres.';
+$MANTIS_ERROR[ERROR_PROJECT_RECURSIVE_HIERARCHY] = 'Ez a művelet hurkot eredményezne az alprojekt-hierarchiában.';
+$MANTIS_ERROR[ERROR_PROJECT_SUBPROJECT_DUPLICATE] = 'A "%1$s" projekt már a(z) "%2$s" alprojekje.';
+$MANTIS_ERROR[ERROR_PROJECT_SUBPROJECT_NOT_FOUND] = 'A(z) "%1$s" nem a(z) "%2$s" alprojektje.';
 $MANTIS_ERROR[ERROR_USER_BY_NAME_NOT_FOUND] = '„%1$s” nevű felhasználó nem található.';
 $MANTIS_ERROR[ERROR_USER_BY_ID_NOT_FOUND] = '„%1$s” azonosítójú felhasználó nem található.';
 $MANTIS_ERROR[ERROR_USER_BY_EMAIL_NOT_FOUND] = '„%1$s” e-mail című felhasználó nem található.';
@@ -1333,7 +1349,7 @@ $MANTIS_ERROR[ERROR_SPONSORSHIP_ASSIGNER_ACCESS_LEVEL_TOO_LOW] = 'Hozzáférés 
 $MANTIS_ERROR[ERROR_SPONSORSHIP_SPONSOR_NO_EMAIL] = 'A támogató nem adott meg email-címet. Frissítse a profilját.';
 $MANTIS_ERROR[ERROR_CONFIG_OPT_INVALID] = 'A(z) \'%1$s\' konfigurációs beállítás hibás értéket tartalmaz: \'%2$s\'';
 $MANTIS_ERROR[ERROR_BUG_READ_ONLY_ACTION_DENIED] = 'A művelet nem végrehajtható, mert a(z) \'%1$d\' ügy csak olvasható';
-$MANTIS_ERROR[ERROR_BUG_RESOLVE_DEPENDANTS_BLOCKING] = 'Az ügy nem lehet megoldott, amely valamenniy függő ügye nem lett megoldva.';
+$MANTIS_ERROR[ERROR_BUG_RESOLVE_DEPENDANTS_BLOCKING] = 'Az ügy nem lehet megoldott, amíg valamennyi függő ügye nem lett megoldva. Kérjen hozzáférést a projekthez a rendszergazdától, ha nem lát függő ügyet.';
 $MANTIS_ERROR[ERROR_RELATIONSHIP_NOT_FOUND] = 'Kapcsolat nem található.';
 $MANTIS_ERROR[ERROR_RELATIONSHIP_ACCESS_LEVEL_TO_DEST_BUG_TOO_LOW] = 'Hozzáférés megtagadva: a(z) %1$d ügy nagyobb jogosultsági szintet igényel.';
 $MANTIS_ERROR[ERROR_RELATIONSHIP_SAME_BUG] = 'Egy ügy nem kapcsolódhat önmagához.';
@@ -1343,7 +1359,6 @@ $MANTIS_ERROR[ERROR_LOST_PASSWORD_NO_EMAIL_SPECIFIED] = 'A jelszó visszaállít
 $MANTIS_ERROR[ERROR_LOST_PASSWORD_NOT_MATCHING_DATA] = 'A megadott információ nem tartozik egyetlen regisztrált felhasználóhoz sem!';
 $MANTIS_ERROR[ERROR_LOST_PASSWORD_CONFIRM_HASH_INVALID] = 'A jóváhagyó URL hibás, vagy már felhasználták. Kérjük, lépjen be újra.';
 $MANTIS_ERROR[ERROR_LOST_PASSWORD_MAX_IN_PROGRESS_ATTEMPTS_REACHED] = 'Elértük a folyamatban levő kérések maximális számát. Lépjen kapcsolatba a rendszergazdával';
-$MANTIS_ERROR[ERROR_PROJECT_RECURSIVE_HIERARCHY] = 'Ez a művelet hurkot eredményezne az alprojekt-hierarchiában.';
 $MANTIS_ERROR[ERROR_USER_CHANGE_LAST_ADMIN] = 'Nem távolíthatod el és nem veheted el a jogosultságát az utolsó adminisztrátori fióknak. A kért művelet végrehajtásához először készítened kell egy másik adminisztrátori fiókot.';
 $MANTIS_ERROR[ERROR_PAGE_REDIRECTION] = 'Átirányítási hiba, győződjön meg róla, hogy a PHP blokkon kívül (&lt;?php ?&gt;) nincs egyetlen szóköz sem a config_inc.php vagy a custom_*.php fájlokban.';
 $MANTIS_ERROR[ERROR_TAG_NOT_FOUND] = 'Ilyen nevű címke nem található.';
@@ -1394,3 +1409,10 @@ $s_dropzone_cancel_upload_confirmation = 'Biztos megszakítja ezt a feltöltést
 $s_dropzone_remove_file = 'Fájl eltávolítása';
 $s_dropzone_max_files_exceeded = 'Nem tölthet fel több fájlt.';
 $s_dropzone_not_supported = 'A dropzone.js nem támogatja a régebbi böngészőket!';
+$s_dropzone_multiple_files_too_big = 'A következő fájlok:{{files}}Túllépik a megengedett maximális fájlméretet ({{maxFilesize}} MiB)';
+$s_save = 'Mentés';
+$s_reset = 'Alaphelyzet';
+$s_persist = 'Fennáll';
+$s_load = 'Betöltés';
+$s_apply_changes = 'Változások mentése';
+$s_undo = 'Visszavonás';
