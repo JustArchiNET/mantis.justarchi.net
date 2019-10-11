@@ -1154,7 +1154,12 @@ function summary_helper_get_time_stats( $p_project_id, array $p_filter = null ) 
 	# (e.g. bug is CLOSED, not RESOLVED). The linkage to the history field
 	# will look up the most recent 'resolved' status change and return it as well
 
-	$t_stats = array();
+	$t_stats = array(
+		'bug_id'       => 0,
+		'largest_diff' => 0,
+		'total_time'   => 0,
+		'average_time' => 0,
+		);
 
 	$t_sql_inner = ' FROM {bug} b LEFT JOIN {bug_history} h'
 		. ' ON b.id = h.bug_id  AND h.type = :hist_type'
@@ -1175,7 +1180,14 @@ function summary_helper_get_time_stats( $p_project_id, array $p_filter = null ) 
 	}
 
 	if( db_has_capability( DB_CAPABILITY_WINDOW_FUNCTIONS ) ) {
-		$t_sql = 'SELECT id, diff, SUM(diff) OVER () AS total_time, AVG(diff) OVER () AS avg_time'
+		if(db_is_mssql() ) {
+			# sqlserver by default uses the column datatype, which is INT. This datatype can be overflowed
+			# when a big number of issues are included, since we are adding the total number of seconds.
+			$t_diff_expr = 'CAST(diff AS BIGINT)';
+		} else {
+			$t_diff_expr = 'diff';
+		}
+		$t_sql = 'SELECT id, diff, SUM(' . $t_diff_expr . ') OVER () AS total_time, AVG(' . $t_diff_expr . ') OVER () AS avg_time'
 			. ' FROM ( SELECT b.id, MAX(h.date_modified) - b.date_submitted AS diff'
 			. $t_sql_inner
 			. ' GROUP BY b.id,b.date_submitted ) subquery'
@@ -1363,22 +1375,32 @@ function summary_by_dates_bug_count( array $p_date_array, array $p_filter = null
 		$t_count_array['open'][$t_ix] = 0;
 		$t_count_array['close'][$t_ix] = 0;
 	}
-	# count is accumulated, and date ranges are ordered in the result
-	$t_count_open = 0;
-	$t_count_closed = 0;
+
+	# The query returns the count specific to each date range (some ranges may
+	# not exist in the query result if the count is 0).
+	# Fill the array with those values first.
 	while( $t_row = $t_query->fetch() ) {
 		$t_index = (int)$t_row['date_range'];
 		if( $t_index >= 0 ) {
 			switch( $t_row['action'] ) {
 				case 'O':
-					$t_count_open += $t_row['range_count'];
-					$t_count_array['open'][$t_index] = $t_count_open;
+					$t_count_array['open'][$t_index] = $t_row['range_count'];
 					break;
 				case 'C':
-					$t_count_closed += $t_row['range_count'];
-					$t_count_array['close'][$t_index] = $t_count_closed;
+					$t_count_array['close'][$t_index] = $t_row['range_count'];
 			}
 		}
+	}
+
+	# This function returns the accumulated count. Process the array to add
+	# each successive date range
+	$t_count_open = 0;
+	$t_count_closed = 0;
+	foreach( $t_date_array as $t_ix => $t_value ) {
+		$t_count_open += $t_count_array['open'][$t_ix];
+		$t_count_array['open'][$t_ix] = $t_count_open;
+		$t_count_closed += $t_count_array['close'][$t_ix];
+		$t_count_array['close'][$t_ix] = $t_count_closed;
 	}
 	return $t_count_array;
 }

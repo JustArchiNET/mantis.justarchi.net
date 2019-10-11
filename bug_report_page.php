@@ -49,8 +49,6 @@
  * @uses version_api.php
  */
 
-$g_allow_browser_cache = 1;
-
 require_once( 'core.php' );
 require_api( 'access_api.php' );
 require_api( 'authentication_api.php' );
@@ -203,7 +201,10 @@ $t_show_eta = in_array( 'eta', $t_fields );
 $t_show_severity = in_array( 'severity', $t_fields );
 $t_show_priority = in_array( 'priority', $t_fields );
 $t_show_steps_to_reproduce = in_array( 'steps_to_reproduce', $t_fields );
-$t_show_handler = in_array( 'handler', $t_fields ) && access_has_project_level( config_get( 'update_bug_assign_threshold' ) );
+$t_show_handler = in_array( 'handler', $t_fields )
+	&& access_has_project_level( config_get( 'update_bug_assign_threshold' ) );
+$t_show_monitors = in_array( 'monitors', $t_fields )
+	&& access_has_project_level( config_get( 'monitor_add_others_bug_threshold' ) );
 $t_show_profiles = config_get( 'enable_profiles' );
 $t_show_platform = $t_show_profiles && in_array( 'platform', $t_fields );
 $t_show_os = $t_show_profiles && in_array( 'os', $t_fields );
@@ -484,6 +485,19 @@ if( $t_show_attachments ) {
 	</tr>
 <?php } ?>
 
+<?php if( $t_show_monitors ) { ?>
+	<tr>
+		<th class="category">
+			<label for="monitors"><?php echo lang_get( 'monitored_by' ) ?></label>
+		</th>
+		<td>
+			<select <?php echo helper_get_tab_index() ?> id="monitors" name="monitors[]" class="input-sm" multiple>
+				<?php print_user_option_list( NO_USER, $t_project_id, config_get( 'monitor_bug_threshold' ) ) ?>
+			</select>
+		</td>
+	</tr>
+<?php } ?>
+
 <?php if( $t_show_status ) { ?>
 	<tr>
 		<th class="category">
@@ -551,7 +565,10 @@ if( $t_show_attachments ) {
 			<span class="required">*</span><label for="description"><?php print_documentation_link( 'description' ) ?></label>
 		</th>
 		<td>
-			<textarea class="form-control" <?php echo helper_get_tab_index() ?> id="description" name="description" cols="80" rows="10" required><?php echo string_textarea( $f_description ) ?></textarea>
+			<?php # Newline after opening textarea tag is intentional, see #25839 ?>
+			<textarea class="form-control" <?php echo helper_get_tab_index() ?> id="description" name="description" cols="80" rows="10" required>
+<?php echo string_textarea( $f_description ) ?>
+</textarea>
 		</td>
 	</tr>
 
@@ -561,7 +578,10 @@ if( $t_show_attachments ) {
 				<label for="steps_to_reproduce"><?php print_documentation_link( 'steps_to_reproduce' ) ?></label>
 			</th>
 			<td>
-				<textarea class="form-control" <?php echo helper_get_tab_index() ?> id="steps_to_reproduce" name="steps_to_reproduce" cols="80" rows="10"><?php echo string_textarea( $f_steps_to_reproduce ) ?></textarea>
+				<?php # Newline after opening textarea tag is intentional, see #25839 ?>
+				<textarea class="form-control" <?php echo helper_get_tab_index() ?> id="steps_to_reproduce" name="steps_to_reproduce" cols="80" rows="10">
+<?php echo string_textarea( $f_steps_to_reproduce ) ?>
+</textarea>
 			</td>
 		</tr>
 <?php } ?>
@@ -572,7 +592,10 @@ if( $t_show_attachments ) {
 			<label for="additional_info"><?php print_documentation_link( 'additional_information' ) ?></label>
 		</th>
 		<td>
-			<textarea class="form-control" <?php echo helper_get_tab_index() ?> id="additional_info" name="additional_info" cols="80" rows="10"><?php echo string_textarea( $f_additional_info ) ?></textarea>
+			<?php # Newline after opening textarea tag is intentional, see #25839 ?>
+			<textarea class="form-control" <?php echo helper_get_tab_index() ?> id="additional_info" name="additional_info" cols="80" rows="10">
+<?php echo string_textarea( $f_additional_info ) ?>
+</textarea>
 		</td>
 	</tr>
 <?php } ?>

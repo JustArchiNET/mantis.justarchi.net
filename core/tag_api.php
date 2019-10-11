@@ -224,6 +224,7 @@ function tag_is_unique( $p_name ) {
  */
 function tag_ensure_unique( $p_name ) {
 	if( !tag_is_unique( $p_name ) ) {
+		error_parameters( $p_name );
 		trigger_error( ERROR_TAG_DUPLICATE, ERROR );
 	}
 }
@@ -256,6 +257,7 @@ function tag_name_is_valid( $p_name, array &$p_matches, $p_prefix = '' ) {
 function tag_ensure_name_is_valid( $p_name ) {
 	$t_matches = array();
 	if( !tag_name_is_valid( $p_name, $t_matches ) ) {
+		error_parameters( $p_name );
 		trigger_error( ERROR_TAG_NAME_INVALID, ERROR );
 	}
 }
@@ -497,7 +499,7 @@ function tag_get_name( $p_tag_id ) {
 /**
  * Return a tag row for the given name.
  * @param string $p_name The tag name to retrieve from the database.
- * @return array|boolean Tag row
+ * @return array|false Tag row
  */
 function tag_get_by_name( $p_name ) {
 	db_param_push();
