@@ -83,7 +83,7 @@ function reminder_print_status_option_list( $p_name ) {
 	</td><td></td>
 </tr>
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category" width="60%">
 		<?php echo lang_get( 'reminder_details' ) ?>
 	</td>
@@ -97,7 +97,7 @@ function reminder_print_status_option_list( $p_name ) {
 	</td>
 </tr>
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category" width="60%">
 		<?php echo lang_get( 'reminder_sender' ) ?>
 	</td>
@@ -105,7 +105,7 @@ function reminder_print_status_option_list( $p_name ) {
 		<input type="text" name="reminder_sender" size="50" maxlength="50" value="<?php echo plugin_config_get( 'reminder_sender' )?>" >
 	</td><td></td>
 </tr>
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category" width="60%">
 		<?php echo lang_get( 'reminder_days_treshold' ) ?>
 	</td>
@@ -114,7 +114,7 @@ function reminder_print_status_option_list( $p_name ) {
 	</td><td></td>
 </tr>
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category" width="60%">
 		<?php echo lang_get( 'reminder_hours' ) ?>
 	</td>
@@ -128,7 +128,7 @@ function reminder_print_status_option_list( $p_name ) {
 	</td>
 </tr>
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category" width="60%">
 		<?php echo lang_get( 'reminder_include' ) ?>
 	</td>
@@ -142,7 +142,7 @@ function reminder_print_status_option_list( $p_name ) {
 	</td>
 </tr>
 
-<tr <?php echo helper_alternate_class() ?> >
+<tr>
 	<td class="category" width="60%">
 		<?php echo lang_get( 'reminder_project_name' ) ?>
 	</td>
@@ -152,7 +152,7 @@ function reminder_print_status_option_list( $p_name ) {
 	</td><td>
 </tr>
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category" width="60%">
 		<?php echo lang_get( 'reminder_bug_status' ) ?>
 	</td>
@@ -164,7 +164,7 @@ function reminder_print_status_option_list( $p_name ) {
 </tr>
 
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category">
 		<?php echo lang_get( 'reminder_manager_overview' ) ?>
 	</td>
@@ -178,7 +178,7 @@ function reminder_print_status_option_list( $p_name ) {
 	</td>
 </tr>
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category">
 		<?php echo lang_get( 'reminder_handler' ) ?>
 	</td>
@@ -192,7 +192,7 @@ function reminder_print_status_option_list( $p_name ) {
 	</td>
 </tr>
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category">
 		<?php echo lang_get( 'reminder_group_issues' ) ?>
 	</td>
@@ -206,7 +206,7 @@ function reminder_print_status_option_list( $p_name ) {
 	</td>
 </tr>
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category">
 		<?php echo lang_get( 'reminder_group_project' ) ?>
 	</td>
@@ -221,7 +221,7 @@ function reminder_print_status_option_list( $p_name ) {
 </tr>
 
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category">
 		<?php echo lang_get( 'reminder_ignore_unset' ) ?>
 	</td>
@@ -235,7 +235,7 @@ function reminder_print_status_option_list( $p_name ) {
 	</td>
 </tr>
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category">
 		<?php echo lang_get( 'reminder_ignore_past' ) ?>
 	</td>
@@ -249,7 +249,7 @@ function reminder_print_status_option_list( $p_name ) {
 	</td>
 </tr>
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category">
 		<?php echo lang_get( 'reminder_store_as_note' ) ?>
 	</td>
@@ -264,7 +264,7 @@ function reminder_print_status_option_list( $p_name ) {
 </tr>
 
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category" width="60%">
 		<?php echo lang_get( 'reminder_group_subject' ) ?>
 	</td>
@@ -273,7 +273,7 @@ function reminder_print_status_option_list( $p_name ) {
 	</td><td></td>
 </tr>
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category" width="60%">
 		<?php echo lang_get( 'reminder_group_body1' ) ?>
 	</td>
@@ -282,7 +282,7 @@ function reminder_print_status_option_list( $p_name ) {
 	</td><td></td>
 </tr>
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category" width="60%">
 		<?php echo lang_get( 'reminder_group_body2' ) ?>
 	</td>
@@ -296,14 +296,14 @@ function reminder_print_status_option_list( $p_name ) {
 <tr></tr>
 <tr></tr>
 
-<tr <?php echo helper_alternate_class() ?> >
+<tr>
 	<td class="form-title" colspan="3">
 	<?php echo lang_get( 'reminder_feedback_email' ) ?>  
 	</td>
 </tr>	
 
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category" width="60%">
 		<?php echo lang_get( 'reminder_feedback_status' ) ?>
 	</td>
@@ -313,7 +313,7 @@ function reminder_print_status_option_list( $p_name ) {
 	</td> 
 	</td>
 </tr>
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category" width="60%">
 		<?php echo lang_get( 'reminder_subject' ) ?>
 	</td>
@@ -327,7 +327,7 @@ function reminder_print_status_option_list( $p_name ) {
 <tr></tr>
 <tr></tr>
 
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category" width="60%">
 		<?php echo lang_get( 'reminder_login' ) ?>
 	</td>
@@ -335,7 +335,7 @@ function reminder_print_status_option_list( $p_name ) {
 			<input type="text" name="reminder_login" size="15" maxlength="15" value="<?php echo plugin_config_get( 'reminder_login' )?>" >
 	</td><td></td>
 </tr>
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category" width="60%">
 		<?php echo lang_get( 'reminder_finished' ) ?>
 	</td>
@@ -344,12 +344,12 @@ function reminder_print_status_option_list( $p_name ) {
 	</td><td></td>
 </tr>
 
-<tr <?php echo helper_alternate_class() ?> >
+<tr>
 	<td class="form-title" colspan="3">
 	<?php echo lang_get( 'reminder_export_settings' ) ?>  
 	</td>
 </tr>
-<tr <?php echo helper_alternate_class() ?>>
+<tr>
 	<td class="category" width="60%">
 		<?php echo lang_get( 'reminder_export_colsep' ) ?>
 	</td>

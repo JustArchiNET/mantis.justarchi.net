@@ -24,11 +24,9 @@ $t_rem_projects	= "(";
 $t_rem_projects	.= config_get('plugin_Reminder_reminder_project_id');
 $t_rem_projects	.= ")";
 if (ON==$t_rem_include){
-	if ($t_rem_projects <>"0") {
+	if ($t_rem_projects <>"(0)") {
 		$query .= " and $t_bug_table.project_id IN ". $t_rem_projects;
 	}
-}else{
-	$query .= " and $t_bug_table.project_id NOT IN ".$t_rem_projects;
 }
 
 $query .= " order by reporter_id";
