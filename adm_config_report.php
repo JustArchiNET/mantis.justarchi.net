@@ -184,6 +184,10 @@ $t_result = db_query( $t_query );
 $t_projects_list[META_FILTER_NONE] = '[' . lang_get( 'any' ) . ']';
 $t_projects_list[ALL_PROJECTS] = lang_get( 'all_projects' );
 while( $t_row = db_fetch_array( $t_result ) ) {
+	/**
+	 * @var integer $v_project_id
+	 * @var string  $v_project_name
+	 */
 	extract( $t_row, EXTR_PREFIX_ALL, 'v' );
 	$t_projects_list[$v_project_id] = $v_project_name;
 }
@@ -197,6 +201,9 @@ if( $t_filter_config_value != META_FILTER_NONE ) {
 	$t_configs_list[$t_filter_config_value] = $t_filter_config_value;
 }
 while( $t_row = db_fetch_array( $t_result ) ) {
+	/**
+	 * @var string $v_config_id
+	 */
 	extract( $t_row, EXTR_PREFIX_ALL, 'v' );
 	$t_configs_list[$v_config_id] = $v_config_id;
 }
@@ -235,7 +242,7 @@ $t_config_query = new DbQuery( $t_sql, $t_params );
 <div class="widget-box widget-color-blue2">
 <div class="widget-header widget-header-small">
 <h4 class="widget-title lighter">
-	<i class="ace-icon fa fa-filter"></i>
+	<?php print_icon( 'fa-filter', 'ace-icon' ); ?>
 	<?php echo lang_get( 'filters' ) ?>
 </h4>
 </div>
@@ -309,11 +316,12 @@ $t_config_query = new DbQuery( $t_sql, $t_params );
 <div class="space-10"></div>
 
 <!-- CONFIGURATIONS LIST -->
+<a id="database_configuration"></a>
 <div class="widget-box widget-color-blue2">
 <div class="widget-header widget-header-small">
 <h4 class="widget-title lighter">
-<i class="ace-icon fa fa-database"></i>
-<?php echo lang_get( 'database_configuration' ) ?>
+	<?php print_icon( 'fa-database', 'ace-icon' ); ?>
+	<?php echo lang_get( 'database_configuration' ) ?>
 </h4>
 </div>
 
@@ -324,6 +332,12 @@ $t_config_query = new DbQuery( $t_sql, $t_params );
 		$t_url_new = 'adm_config_page.php?action=' . MANAGE_CONFIG_ACTION_CREATE;
 		$t_label = lang_get( 'set_configuration_option_action_' . MANAGE_CONFIG_ACTION_CREATE );
 		print_link_button( $t_url_new, $t_label );
+
+		print_link_button(
+			'#database_configuration',
+			sprintf( lang_get( 'show_all_complex' ), config_get_type_string( CONFIG_TYPE_COMPLEX ) ),
+			'expand_all'
+		);
 		?>
 	</div>
 <div class="table-responsive sortable">
@@ -349,6 +363,14 @@ $t_config_query = new DbQuery( $t_sql, $t_params );
 $t_form_security_token = form_security_token( 'adm_config_delete' );
 
 while( $t_row = $t_config_query->fetch() ) {
+	/**
+	 * @var integer $v_type
+	 * @var integer $v_user_id
+	 * @var integer $v_project_id
+	 * @var string  $v_config_id
+	 * @var mixed   $v_value
+	 * @var integer $v_access_reqd
+	 */
 	extract( $t_row, EXTR_PREFIX_ALL, 'v' );
 
 	# For complex values, the content is not rendered
@@ -398,7 +420,7 @@ while( $t_row = $t_config_query->fetch() ) {
 			$t_action_params['action'] = MANAGE_CONFIG_ACTION_EDIT;
 			$t_url_edit = helper_url_combine( 'adm_config_page.php', http_build_query( $t_action_params ) );
 			echo '<div class="pull-left">';
-			print_link_button( $t_url_edit, lang_get( 'edit_link' ), 'btn-xs' );
+			print_link_button( $t_url_edit, lang_get( 'edit' ), 'btn-xs' );
 			echo '</div>';
 
 			# Clone button
@@ -412,7 +434,7 @@ while( $t_row = $t_config_query->fetch() ) {
 			echo '<div class="pull-left">';
 			print_form_button(
 				'adm_config_delete.php',
-				lang_get( 'delete_link' ),
+				lang_get( 'delete' ),
 				array(
 					'user_id'       => $v_user_id,
 					'project_id'    => $v_project_id,
