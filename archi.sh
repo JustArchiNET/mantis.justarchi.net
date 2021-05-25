@@ -7,4 +7,4 @@ git pull origin master
 
 rm -rf vendor
 
-composer install -n -o --no-dev --no-progress --no-suggest
+composer install -n -o --no-dev --no-progress
